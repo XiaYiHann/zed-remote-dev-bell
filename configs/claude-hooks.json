@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "description": "Terminal bell on task completion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.local/bin/zed-bell"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt|idle_prompt|elicitation_dialog",
+        "description": "Terminal bell when input needed",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.local/bin/zed-bell"
+          }
+        ]
+      }
+    ]
+  }
+}

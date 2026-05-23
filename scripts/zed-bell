@@ -1,0 +1,10 @@
+#!/usr/bin/env python3
+"""
+Helper script that outputs a JSON object with terminalSequence containing BEL (\x07).
+Used by Claude Code hooks to request terminal bell emission.
+"""
+import json, sys
+
+# Claude Code parses terminalSequence and emits the escape sequence through its own
+# terminal write path. BEL triggers Zed's tab activity indicator (blue dot).
+sys.stdout.write(json.dumps({"terminalSequence": "\x07"}))
