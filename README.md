@@ -18,8 +18,8 @@ Hook all three AI tools to emit a terminal `BEL` (`\a`) on completion. Zed's ter
 | Tool | Mechanism |
 |------|-----------|
 | Claude Code | `terminalSequence` JSON output via hooks |
-| Codex CLI | Shell alias `codex-bell` (rings on exit; hooks stdout is isolated) |
-| OpenCode | Shell alias `opencode-bell` (v1.15+ plugin event hooks hang upstream) |
+| Codex CLI | Shell function `codex-bell` (rings on exit; hooks stdout is isolated) |
+| OpenCode | Local plugin under `~/.config/opencode/plugins/zed-bell.js` |
 
 ## Quick Install
 
@@ -39,8 +39,9 @@ cd zed-remote-dev-bell
 
 - Creates `~/.local/bin/zed-bell` helper script
 - Patches `~/.claude/settings.json` with `Stop` + `Notification` hooks
-- Adds `codex-bell` shell alias for Codex CLI (hooks do not support terminal bell)
-- Adds `opencode-bell` shell alias for OpenCode (upstream plugin hooks hang in v1.15+)
+- Adds `codex-bell` shell function for Codex CLI (hooks do not support terminal bell)
+- Adds an OpenCode local plugin for `permission.asked`, `session.idle`, and `session.error`
+- Warns when Linux `inotify` watcher limits are too low for many concurrent Zed/OpenCode sessions
 - Backs up original configs before modifying
 
 ## Requirements
@@ -55,6 +56,51 @@ cd zed-remote-dev-bell
 2. In the first tab, run any of the AI tools and start a long task
 3. Switch to the second tab
 4. When the task finishes, the first tab should show a **blue activity dot**
+
+## OpenCode Notes
+
+OpenCode local plugins are supported by placing JavaScript modules in:
+
+```text
+~/.config/opencode/plugins/
+```
+
+This project installs:
+
+```text
+~/.config/opencode/plugins/zed-bell.js
+```
+
+The plugin rings BEL for:
+
+- `permission.asked`
+- `session.idle`
+- `session.error`
+
+If `opencode run` appears to hang after adding or changing plugins, first check
+Linux inotify capacity. On busy remote dev hosts, Zed, language servers, Codex,
+Claude Code, and OpenCode can exhaust the default watcher quota. The symptom can
+look like a plugin bug while the real error in OpenCode logs is:
+
+```text
+inotify_add_watch ... failed: No space left on device
+```
+
+Check the current limits:
+
+```bash
+cat /proc/sys/fs/inotify/max_user_watches
+cat /proc/sys/fs/inotify/max_user_instances
+```
+
+Recommended host-level values for multi-agent remote development:
+
+```bash
+sudo sysctl -w fs.inotify.max_user_watches=524288 fs.inotify.max_user_instances=1024
+printf '%s\n' \
+  'fs.inotify.max_user_watches = 524288' \
+  'fs.inotify.max_user_instances = 1024' | sudo tee /etc/sysctl.d/60-agent-inotify.conf
+```
 
 ## Uninstall
 
