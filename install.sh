@@ -120,37 +120,21 @@ else
 fi
 
 # ── OpenCode ──
-OPENCODE_GLOBAL="$HOME/.config/opencode/opencode.json"
-mkdir -p "$HOME/.config/opencode/plugins"
-if [[ -f "$OPENCODE_GLOBAL" ]]; then
-    backup_file "$OPENCODE_GLOBAL"
-    cp "$SCRIPT_DIR/configs/opencode-plugin.js" "$HOME/.config/opencode/plugins/zed-bell.js"
-    export _ZB_PATH="$OPENCODE_GLOBAL"
-    python3 << 'PYEOF'
-import json, os
-path = os.environ["_ZB_PATH"]
-with open(path, "r") as f:
-    data = json.load(f)
+# OpenCode v1.15.x has upstream bugs that cause `opencode run` to hang indefinitely
+# when plugin event hooks are registered. We use a shell alias instead.
+if command -v opencode &>/dev/null; then
+    for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
+        if [[ -f "$rc" ]] && ! grep -q "alias opencode-bell=" "$rc" 2>/dev/null; then
+            cat >> "$rc" << 'EOF'
 
-if "plugin" not in data:
-    data["plugin"] = []
-
-if "zed-bell" not in data["plugin"]:
-    data["plugin"].append("zed-bell")
-
-with open(path, "w") as f:
-    json.dump(data, f, indent=2)
-    f.write("\n")
-PYEOF
-    info "Installed OpenCode zed-bell plugin"
+# zed-remote-dev-bell: ring terminal bell when OpenCode exits
+alias opencode-bell='opencode; printf "\a"'
+EOF
+            info "Added 'opencode-bell' alias to $rc"
+        fi
+    done
 else
-    cp "$SCRIPT_DIR/configs/opencode-plugin.js" "$HOME/.config/opencode/plugins/zed-bell.js"
-    cat > "$OPENCODE_GLOBAL" << 'JSONEOF'
-{
-  "plugin": ["zed-bell"]
-}
-JSONEOF
-    info "Created OpenCode config and installed zed-bell plugin"
+    warn "OpenCode not found in PATH, skipping"
 fi
 
 echo ""

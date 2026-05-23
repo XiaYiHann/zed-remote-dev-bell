@@ -19,7 +19,7 @@ Hook all three AI tools to emit a terminal `BEL` (`\a`) on completion. Zed's ter
 |------|-----------|
 | Claude Code | `terminalSequence` JSON output via hooks |
 | Codex CLI | Shell alias `codex-bell` (rings on exit; hooks stdout is isolated) |
-| OpenCode | `process.stderr.write('\x07')` in plugin (bypasses TUI stdout capture) |
+| OpenCode | Shell alias `opencode-bell` (v1.15+ plugin event hooks hang upstream) |
 
 ## Quick Install
 
@@ -40,7 +40,7 @@ cd zed-remote-dev-bell
 - Creates `~/.local/bin/zed-bell` helper script
 - Patches `~/.claude/settings.json` with `Stop` + `Notification` hooks
 - Adds `codex-bell` shell alias for Codex CLI (hooks do not support terminal bell)
-- Installs OpenCode plugin `zed-bell` globally
+- Adds `opencode-bell` shell alias for OpenCode (upstream plugin hooks hang in v1.15+)
 - Backs up original configs before modifying
 
 ## Requirements
