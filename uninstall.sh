@@ -8,14 +8,17 @@ NC='\033[0m'
 info()  { echo -e "${GREEN}[uninstall]${NC} $1"; }
 warn()  { echo -e "${YELLOW}[warn]${NC} $1"; }
 
-restore_backup() {
+restore_or_remove() {
     local file="$1"
     if [[ -f "$file.bak.zedbell" ]]; then
         cp "$file.bak.zedbell" "$file"
         rm "$file.bak.zedbell"
         info "Restored $file from backup"
+    elif [[ -f "$file" ]]; then
+        rm "$file"
+        info "Removed created $file"
     else
-        warn "No backup found for $file"
+        warn "No backup or file found for $file"
     fi
 }
 
@@ -28,12 +31,9 @@ if [[ -f "$HOME/.local/bin/zed-bell" ]]; then
 fi
 
 # ── Restore Claude Code ──
-restore_backup "$HOME/.claude/settings.json"
+restore_or_remove "$HOME/.claude/settings.json"
 
 # ── Restore Codex CLI ──
-restore_backup "$HOME/.codex/config.toml"
-
-# Remove codex-bell alias from shell rc
 for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
     if [[ -f "$rc" ]]; then
         sed -i '/# zed-remote-dev-bell: ring terminal bell when Codex CLI exits/d' "$rc"
@@ -43,7 +43,7 @@ for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
 done
 
 # ── Restore OpenCode ──
-restore_backup "$HOME/.config/opencode/opencode.json"
+restore_or_remove "$HOME/.config/opencode/opencode.json"
 
 # Remove plugin file
 if [[ -f "$HOME/.config/opencode/plugins/zed-bell.js" ]]; then
