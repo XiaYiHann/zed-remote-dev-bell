@@ -175,8 +175,9 @@ else
 fi
 
 # ── OpenCode ──
-# OpenCode local plugins can emit BEL directly. If OpenCode appears to hang while
-# loading plugins, first check inotify watcher quota rather than disabling plugins.
+# OpenCode local plugin writes BEL to stderr because OpenCode's TUI captures stdout.
+# If opencode run appears to hang after adding/changing plugins, first check
+# inotify watcher quota rather than disabling plugins.
 if command -v opencode &>/dev/null; then
     check_inotify_capacity
     mkdir -p "$HOME/.config/opencode/plugins"

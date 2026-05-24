@@ -53,7 +53,7 @@ done
 
 # ── Restore OpenCode ──
 if [[ -f "$HOME/.config/opencode/plugins/zed-bell.js" ]]; then
-    rm "$HOME/.config/opencode/plugins/zed-bell.js"
+    rm -f "$HOME/.config/opencode/plugins/zed-bell.js"
     info "Removed ~/.config/opencode/plugins/zed-bell.js"
 fi
 

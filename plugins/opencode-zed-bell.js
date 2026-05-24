@@ -4,14 +4,14 @@ const BELL_EVENTS = new Set([
   "session.error",
 ])
 
-export const ZedBellPlugin = async ({ $ }) => {
+export const ZedBellPlugin = async () => {
   return {
     event: async ({ event }) => {
       if (!event || !BELL_EVENTS.has(event.type)) {
         return
       }
-
-      await $`bash -lc '$HOME/.local/bin/zed-bell --raw'`
+      // stderr bypasses OpenCode's TUI stdout capture and reaches the host terminal (Zed).
+      process.stderr.write('\x07')
     },
   }
 }

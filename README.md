@@ -19,7 +19,7 @@ Hook all three AI tools to emit a terminal `BEL` (`\a`) on completion. Zed's ter
 |------|-----------|
 | Claude Code | `terminalSequence` JSON output via hooks |
 | Codex CLI | Shell function `codex-bell` (rings on exit; hooks stdout is isolated) |
-| OpenCode | Local plugin under `~/.config/opencode/plugins/zed-bell.js` |
+| OpenCode | Local plugin under `~/.config/opencode/plugins/zed-bell.js` (writes BEL to stderr) |
 
 ## Quick Install
 
@@ -40,7 +40,7 @@ cd zed-remote-dev-bell
 - Creates `~/.local/bin/zed-bell` helper script
 - Patches `~/.claude/settings.json` with `Stop` + `Notification` hooks
 - Adds `codex-bell` shell function for Codex CLI (hooks do not support terminal bell)
-- Adds an OpenCode local plugin for `permission.asked`, `session.idle`, and `session.error`
+- Installs OpenCode local plugin for `permission.asked`, `session.idle`, and `session.error` (writes BEL to stderr to bypass TUI stdout capture)
 - Warns when Linux `inotify` watcher limits are too low for many concurrent Zed/OpenCode sessions
 - Backs up original configs before modifying
 
@@ -71,7 +71,7 @@ This project installs:
 ~/.config/opencode/plugins/zed-bell.js
 ```
 
-The plugin rings BEL for:
+The plugin writes BEL to **stderr** because OpenCode's TUI captures stdout; stderr passes through to the host terminal (Zed). It rings on:
 
 - `permission.asked`
 - `session.idle`
